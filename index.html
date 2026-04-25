@@ -7,27 +7,44 @@
     <style>
         :root { --cyan: #00d4ff; --bg: #0a0a0a; --card: #141414; --border: #333; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #e0e0e0; padding: 20px; font-size: 14px; }
-        .container { max-width: 950px; margin: 0 auto; background: #111; padding: 25px; border-radius: 12px; border: 1px solid var(--cyan); box-shadow: 0 0 30px rgba(0, 212, 255, 0.1); }
+        .container { max-width: 1000px; margin: 0 auto; background: #111; padding: 25px; border-radius: 12px; border: 1px solid var(--cyan); box-shadow: 0 0 30px rgba(0, 212, 255, 0.1); }
         h1 { color: var(--cyan); text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px; }
-        .section { background: var(--card); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); }
-        h2 { font-size: 0.9rem; color: var(--cyan); text-transform: uppercase; margin: 0 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .section { background: var(--card); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border); }
+        h2 { font-size: 1rem; color: var(--cyan); text-transform: uppercase; margin: 0 0 15px 0; border-bottom: 1px solid #333; padding-bottom: 8px; }
         
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        label { display: block; font-size: 0.65rem; color: #888; text-transform: uppercase; margin-bottom: 3px; }
-        input, select { width: 100%; padding: 8px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 4px; box-sizing: border-box; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; font-size: 0.7rem; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+        input[type="text"], input[type="number"], select { width: 100%; padding: 8px; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; outline: none; transition: 0.2s; }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: var(--cyan); }
         
-        .ability-list { max-height: 300px; overflow-y: auto; border: 1px solid #222; padding: 5px; margin-bottom: 10px; }
-        .ability-row { display: flex; align-items: center; gap: 10px; padding: 6px; border-bottom: 1px solid #222; }
-        .ability-row:hover { background: #1a1a1a; }
+        /* New Ability Grid Styling */
+        .ability-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .ability-grid::-webkit-scrollbar { width: 6px; }
+        .ability-grid::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        .ability-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 10px; transition: 0.2s; }
+        .ability-card:hover { border-color: #555; background: #1e1e1e; }
+        .ability-card.active { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0, 212, 255, 0.05); }
+        .ability-header { display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer; }
+        .ability-header input { width: 16px; height: 16px; accent-color: var(--cyan); cursor: pointer; }
+        .ability-controls { display: flex; gap: 10px; margin-left: 26px; }
         
-        .dynamic-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-        .btn-add { background: var(--cyan); color: #000; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.7rem; margin-top: 5px; }
-        .btn-del { background: #ff4d4d22; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
+        /* Aura Grid Styling */
+        .aura-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .aura-card { background: #1a1a1a; padding: 10px 15px; border-radius: 6px; border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: space-between; }
+        .aura-indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid #444; }
         
-        .btn-generate { width: 100%; padding: 15px; background: var(--cyan); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .dynamic-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+        .btn-add { background: transparent; color: var(--cyan); border: 1px dashed var(--cyan); padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; transition: 0.2s; }
+        .btn-add:hover { background: rgba(0, 212, 255, 0.1); }
+        .btn-del { background: #ff4d4d22; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
+        
+        .btn-generate { width: 100%; padding: 15px; background: var(--cyan); color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
+        .btn-generate:hover { box-shadow: 0 0 15px var(--cyan); }
+        
         #output-container { margin-top: 20px; position: relative; }
-        #output { width: 100%; height: 350px; background: #000; color: #00ff88; font-family: 'Consolas', monospace; padding: 15px; border-radius: 8px; border: 1px solid #333; overflow-y: auto; white-space: pre; font-size: 0.8rem; }
-        .copy-btn { position: absolute; top: 10px; right: 25px; background: #333; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        #output { width: 100%; height: 350px; background: #050505; color: #00ff88; font-family: 'Consolas', monospace; padding: 15px; border-radius: 8px; border: 1px solid #333; overflow-y: auto; white-space: pre; font-size: 0.85rem; }
+        .copy-btn { position: absolute; top: 10px; right: 25px; background: #222; color: #fff; border: 1px solid #444; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .copy-btn:hover { background: #333; color: var(--cyan); border-color: var(--cyan); }
     </style>
 </head>
 <body>
@@ -44,20 +61,21 @@
                 <div><label>Master Tag</label><input type="text" id="masterTag" value="has_hero_powers"></div>
                 <div><label>DNA Tag</label><input type="text" id="dnaTag" value="dna:hero"></div>
             </div>
-            <label style="margin-top:10px; display:flex; align-items:center; gap:8px;">
-                <input type="checkbox" id="useInjections" onchange="document.getElementById('injBox').style.display = this.checked ? 'grid':'none'"> Enable DNA Injections
+            <label style="margin-top:15px; display:flex; align-items:center; gap:8px; color:#ccc; font-size: 0.8rem; cursor: pointer;">
+                <input type="checkbox" id="useInjections" onchange="document.getElementById('injBox').style.display = this.checked ? 'grid':'none'" style="width:auto; accent-color:var(--cyan);"> 
+                Enable DNA Injections
             </label>
-            <div id="injBox" class="grid" style="display:none; margin-top:10px;">
+            <div id="injBox" class="grid" style="display:none; margin-top:10px; background: #161616; padding: 10px; border-radius: 6px;">
                 <div><label>Injection</label><input type="text" id="injItem" value="injection:hero"></div>
                 <div><label>Empty</label><input type="text" id="emptyItem" value="injection:empty"></div>
             </div>
         </div>
 
         <div class="section">
-            <h2>2. Effects & Custom Tags</h2>
+            <h2>2. Effects & Tags</h2>
             <div id="effectContainer"></div>
             <button class="btn-add" onclick="addEffectRow()">+ Add Potion Effect</button>
-            <div style="margin-top:15px;">
+            <div style="margin-top:20px;">
                 <label>Manual Power Tags (comma separated)</label>
                 <input type="text" id="customTags" placeholder="sound:step, immune:fire">
             </div>
@@ -65,38 +83,30 @@
     </div>
 
     <div class="section">
-        <h2>3. Ability Selection</h2>
-        <div class="ability-list" id="abilitiesContainer"></div>
+        <h2>3. Item & Ability Selection</h2>
+        <div class="ability-grid" id="abilitiesContainer"></div>
     </div>
 
     <div class="section">
-        <h2>4. Aura Configuration</h2>
-        <div id="auraContainer"></div>
-        <button class="btn-add" onclick="addAuraRow()">+ Add Aura</button>
+        <h2>4. Lightning Aura Mapping</h2>
+        <p style="font-size: 0.8rem; color: #888; margin-top: -5px; margin-bottom: 15px;">Enter the number the player will input to trigger each aura color. Leave blank to omit.</p>
+        <div class="aura-grid" id="auraContainer"></div>
     </div>
 
-    <button class="btn-generate" onclick="generateRegistry()">GENERATE REGISTRY</button>
+    <button class="btn-generate" onclick="generateRegistry()">Generate Registry</button>
 
     <div id="output-container">
-        <button class="copy-btn" onclick="const t=document.getElementById('output').textContent; navigator.clipboard.writeText(t); alert('Copied!')">COPY</button>
-        <div id="output">// Registry will appear here...</div>
+        <button class="copy-btn" onclick="const t=document.getElementById('output').textContent; navigator.clipboard.writeText(t); this.innerText='COPIED!'; setTimeout(()=>this.innerText='COPY', 2000);">COPY</button>
+        <div id="output">// Registry JSON will appear here...</div>
     </div>
 </div>
 
 <script>
     const colors = ["red", "blue", "yellow", "orange", "green", "purple", "pink", "white", "black", "cyan"];
-    const auraTextures = {
-        red: "textures/entity/lightning/lightning_red",
-        blue: "textures/entity/lightning/lightning_blue",
-        yellow: "textures/entity/lightning/lightning_yellow",
-        orange: "textures/entity/lightning/lightning_orange",
-        green: "textures/entity/lightning/lightning_green",
-        purple: "textures/entity/lightning/lightning_purple",
-        pink: "textures/entity/lightning/lightning_pink",
-        white: "textures/entity/lightning/lightning_white",
-        black: "textures/entity/lightning/lightning_black",
-        cyan: "textures/entity/lightning/lightning_blue"
-    };
+    const auraColors = ["Red", "Blue", "Yellow", "Orange", "Green", "Purple", "Pink", "White", "Black"];
+    
+    // Hex mappings just for the UI visual indicators
+    const hexMap = { Red: "#ff4444", Blue: "#4444ff", Yellow: "#ffff44", Orange: "#ffaa00", Green: "#44ff44", Purple: "#aa44ff", Pink: "#ff88ff", White: "#ffffff", Black: "#333333" };
 
     const abilityDb = [
         { name: "Area Teleport", id: "ability:area_teleport", type: "item_tag", color: true, icon: "portal" },
@@ -134,35 +144,48 @@
         { name: "Nano Toggle", id: "ability:toggle_anim_suit", type: "item_only", icon: "toggle_anim_suit" }
     ];
 
-    function init() {
+    function initAbilities() {
         const container = document.getElementById('abilitiesContainer');
         abilityDb.forEach((ab, i) => {
             container.innerHTML += `
-                <div class="ability-row">
-                    <input type="checkbox" id="ab_check_${i}">
-                    <span style="flex:1"><b>${ab.name}</b></span>
-                    ${ab.scale ? `<input type="number" id="ab_lv_${i}" class="small-input" style="width:50px" value="100">`:''}
-                    ${ab.color ? `<select id="ab_col_${i}" style="width:80px">${colors.map(c=>`<option>${c}</option>`).join('')}</select>`:''}
+                <div class="ability-card" id="card_${i}">
+                    <label class="ability-header">
+                        <input type="checkbox" id="ab_check_${i}" onchange="document.getElementById('card_${i}').classList.toggle('active', this.checked)">
+                        <span>${ab.name}</span>
+                    </label>
+                    ${ab.scale || ab.color ? `
+                    <div class="ability-controls">
+                        ${ab.scale ? `<input type="number" id="ab_lv_${i}" placeholder="Scale" value="100" style="width: 40%;">`:''}
+                        ${ab.color ? `
+                        <select id="ab_col_${i}" style="width: 60%;">
+                            <option value="" disabled selected>Select Color</option>
+                            ${colors.map(c=>`<option value="${c}">${c.charAt(0).toUpperCase() + c.slice(1)}</option>`).join('')}
+                        </select>`:''}
+                    </div>` : ''}
                 </div>`;
+        });
+    }
+
+    function initAuras() {
+        const container = document.getElementById('auraContainer');
+        auraColors.forEach(color => {
+            container.innerHTML += `
+                <div class="aura-card">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="aura-indicator" style="background-color: ${hexMap[color]}"></span>
+                        <span style="font-weight: bold;">${color}</span>
+                    </div>
+                    <input type="number" id="aura_val_${color}" placeholder="Aura #" min="1" max="99" style="width: 70px; text-align: center;">
+                </div>
+            `;
         });
     }
 
     function addEffectRow() {
         const div = document.createElement('div');
         div.className = 'dynamic-row';
-        div.innerHTML = `<input type="text" placeholder="id" class="eff-id"> <input type="number" value="1" style="width:50px" class="eff-lv"> <button class="btn-del" onclick="this.parentElement.remove()">X</button>`;
+        div.innerHTML = `<input type="text" placeholder="minecraft:effect_id" class="eff-id" style="flex:2;"> <input type="number" value="1" placeholder="Lvl" class="eff-lv" style="flex:1;"> <button class="btn-del" onclick="this.parentElement.remove()">X</button>`;
         document.getElementById('effectContainer').appendChild(div);
-    }
-
-    function addAuraRow() {
-        const div = document.createElement('div');
-        div.className = 'dynamic-row';
-        div.innerHTML = `
-            <input type="text" placeholder="Aura Name" class="aura-name"> 
-            <select class="aura-col">${colors.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
-            <input type="number" min="1" max="9" value="1" style="width:50px" class="aura-val">
-            <button class="btn-del" onclick="this.parentElement.remove()">X</button>`;
-        document.getElementById('auraContainer').appendChild(div);
     }
 
     function generateRegistry() {
@@ -184,38 +207,46 @@
 
         // Effects
         document.querySelectorAll('#effectContainer .dynamic-row').forEach(row => {
-            res.effects.push({ id: row.querySelector('.eff-id').value, level: parseInt(row.querySelector('.eff-lv').value) });
+            const id = row.querySelector('.eff-id').value;
+            if(id) res.effects.push({ id: id, level: parseInt(row.querySelector('.eff-lv').value) });
         });
 
         // Abilities
         abilityDb.forEach((ab, i) => {
             if(!document.getElementById(`ab_check_${i}`).checked) return;
-            const lv = ab.scale ? document.getElementById(`ab_lv_${i}`).value : null;
-            const col = ab.color ? document.getElementById(`ab_col_${i}`).value : null;
+            
+            const scaleEl = document.getElementById(`ab_lv_${i}`);
+            const colEl = document.getElementById(`ab_col_${i}`);
+            
+            const lv = scaleEl ? scaleEl.value : null;
+            const col = colEl ? colEl.value : null;
 
             if(ab.type !== 'tag_only') {
                 res.abilities.push({ 
                     name: ab.name, 
-                    itemId: ab.id.replace('<color>', col || ''), 
+                    itemId: ab.id.replace('<color>', col || 'red'), 
                     icon: `textures/items/abilities/${ab.icon}` 
                 });
             }
-            if(lv) res.powerTags.push(`${ab.id.split(':')[1]}_${lv}`);
+            if(lv) res.powerTags.push(`${ab.id.split(':')[1].replace('_<color>', '')}_${lv}`);
             if(col && ab.type === 'item_tag') res.powerTags.push(`${ab.id.split(':')[1]}_${col}`);
         });
 
         // Custom Tags
         const custom = document.getElementById('customTags').value;
-        if(custom) custom.split(',').forEach(t => res.powerTags.push(t.trim()));
+        if(custom) custom.split(',').forEach(t => { if(t.trim()) res.powerTags.push(t.trim()) });
 
-        // Auras
-        document.querySelectorAll('#auraContainer .dynamic-row').forEach(row => {
-            const col = row.querySelector('.aura-col').value;
-            res.auras.push({
-                name: row.querySelector('.aura-name').value,
-                value: parseInt(row.querySelector('.aura-val').value),
-                icon: auraTextures[col]
-            });
+        // Fixed Auras Mapping
+        auraColors.forEach(color => {
+            const valInput = document.getElementById(`aura_val_${color}`).value;
+            if (valInput && valInput.trim() !== "") {
+                const colLower = color.toLowerCase();
+                res.auras.push({
+                    name: `${color} Lightning Aura`,
+                    value: parseInt(valInput),
+                    icon: `textures/entity/lightning/lightning_${colLower}`
+                });
+            }
         });
 
         // Stringify and Flatten specific objects to one line
@@ -228,7 +259,8 @@
     }
 
     addEffectRow();
-    init();
+    initAbilities();
+    initAuras();
 </script>
 </body>
 </html>
