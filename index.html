@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Core: Power Registry Architect</title>
+    <style>
+        :root { --cyan: #00d4ff; --bg: #0a0a0a; --card: #141414; --border: #333; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #e0e0e0; padding: 20px; line-height: 1.5; }
+        .container { max-width: 900px; margin: 0 auto; background: #111; padding: 30px; border-radius: 12px; border: 1px solid var(--cyan); box-shadow: 0 0 30px rgba(0, 212, 255, 0.1); }
+        h1 { color: var(--cyan); text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 30px; }
+        .section { background: var(--card); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border); }
+        h2 { font-size: 1rem; color: var(--cyan); text-transform: uppercase; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; font-size: 0.7rem; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 4px; box-sizing: border-box; }
+        input:focus { border-color: var(--cyan); outline: none; }
+
+        .ability-row { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #222; transition: 0.2s; }
+        .ability-row:hover { background: #1a1a1a; }
+        .ability-row input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .ability-info { flex-grow: 1; }
+        .ability-name { font-weight: bold; font-size: 0.9rem; }
+        .ability-controls { display: flex; gap: 10px; align-items: center; }
+        .small-input { width: 70px !important; padding: 5px !important; font-size: 0.8rem; }
+        .color-select { width: 100px !important; padding: 5px !important; font-size: 0.8rem; }
+
+        .btn-generate { width: 100%; padding: 20px; background: var(--cyan); color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 20px; }
+        .btn-generate:hover { background: #00b8e6; box-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
+
+        #output-container { margin-top: 30px; position: relative; }
+        #output { width: 100%; height: 400px; background: #000; color: #00ff88; font-family: 'Consolas', monospace; padding: 20px; border-radius: 8px; border: 1px solid #333; overflow-y: auto; white-space: pre; font-size: 0.85rem; }
+        .copy-btn { position: absolute; top: 10px; right: 10px; background: #333; color: #fff; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; }
+        .copy-btn:hover { background: var(--cyan); color: #000; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Power Registry Architect</h1>
+
+    <div class="section">
+        <h2>1. Suit Configuration</h2>
+        <div class="grid">
+            <div>
+                <label>Registry ID (e.g. mark_85)</label>
+                <input type="text" id="suitId" value="template_suit">
+            </div>
+            <div>
+                <label>Suit Item ID</label>
+                <input type="text" id="suitItem" value="suit:template_suit">
+            </div>
+        </div>
+        <div class="grid" style="margin-top:15px;">
+            <div>
+                <label>Master Tag</label>
+                <input type="text" id="masterTag" value="has_template_powers">
+            </div>
+            <div>
+                <label>DNA Tag</label>
+                <input type="text" id="dnaTag" value="dna:template">
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <label style="display: flex; align-items: center; gap: 10px; color: var(--cyan); cursor: pointer;">
+            <input type="checkbox" id="useInjections" onchange="toggleInjections()"> <b>Enable DNA Injections</b>
+        </label>
+        <div id="injectionFields" class="grid" style="display: none; margin-top: 15px;">
+            <div>
+                <label>Injection Item</label>
+                <input type="text" id="injItem" value="injection:template_injection">
+            </div>
+            <div>
+                <label>Empty Syringe</label>
+                <input type="text" id="emptyItem" value="injection:empty_injection">
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. Abilities & Powers</h2>
+        <div id="abilitiesContainer">
+            </div>
+    </div>
+
+    <div class="section">
+        <h2>3. Additional Custom Tags</h2>
+        <label>Custom Power Tags (e.g. sound:heavy_steps, comma separated)</label>
+        <input type="text" id="customTags" placeholder="sound:fx, visual:glow">
+    </div>
+
+    <button class="btn-generate" onclick="generateRegistry()">GENERATE REGISTRY CODE</button>
+
+    <div id="output-container">
+        <button class="copy-btn" onclick="copyCode()">COPY CODE</button>
+        <div id="output">// Your generated code will appear here...</div>
+    </div>
+</div>
+
+<script>
+    const colors = ["red", "blue", "green", "yellow", "orange", "purple", "pink", "white", "black", "cyan"];
+    
+    // Ability Database
+    const abilityDb = [
+        { name: "Area Teleport", id: "ability:area_teleport", type: "item_tag", color: true, icon: "portal" },
+        { name: "Chest Energy Beam", id: "ability:chest_energy_beam_<color>", type: "item_only", color: true, icon: "chest_energy_beam" },
+        { name: "Double Energy Beam", id: "ability:double_energy_beam_<color>", type: "item_only", color: true, icon: "double_energy_beam" },
+        { name: "Energy Beam", id: "ability:energy_beam_<color>", type: "item_only", color: true, icon: "energy_beam" },
+        { name: "Energy Bomb", id: "ability:energy_bomb", type: "item_tag", scale: true, color: true, icon: "energy_bomb" },
+        { name: "Extra Life", id: "ability:extra_life", type: "tag_only", scale: true },
+        { name: "Fire Breath", id: "ability:fire_breath", type: "item_tag", scale: true, icon: "fire_breath" },
+        { name: "Flight", id: "ability:flight", type: "item_tag", scale: true, icon: "flight" },
+        { name: "Forcefield", id: "ability:forcefield_<color>", type: "item_only", color: true, icon: "forcefield" },
+        { name: "Frostbite Wave", id: "ability:frostbite_wave", type: "item_only", icon: "frostbite_wave" },
+        { name: "Gravity Flip", id: "ability:gravity_flip", type: "item_only", icon: "gravity_flip" },
+        { name: "Ground Smash", id: "ability:ground_smash", type: "item_tag", scale: true, icon: "ground_smash" },
+        { name: "Head Energy Beam", id: "ability:head_energy_beam_<color>", type: "item_only", color: true, icon: "head_energy_beam" },
+        { name: "Healing Aura", id: "ability:healing_aura", type: "item_only", icon: "healing_aura" },
+        { name: "Heat Vision", id: "ability:heat_vision", type: "item_tag", scale: true, color: true, icon: "heat_vision" },
+        { name: "Ice Breath", id: "ability:ice_breath", type: "item_tag", scale: true, icon: "ice_breath" },
+        { name: "Kinetic Pulse", id: "ability:kinetic_pulse", type: "item_only", icon: "kinetic_pulse" },
+        { name: "Lightning Beam", id: "ability:lightning_beam_<color>", type: "item_only", color: true, icon: "lightning_beam" },
+        { name: "Lightning Strike", id: "ability:lightning_strike", type: "item_only", icon: "lightning_strike" },
+        { name: "Phase", id: "ability:phase", type: "item_only", icon: "phase" },
+        { name: "Photo Healing", id: "ability:photo_healing", type: "tag_only" },
+        { name: "Power Blast", id: "ability:power_blast", type: "item_tag", scale: true, color: true, icon: "power_blast" },
+        { name: "Prism Shot", id: "ability:prism_shot", type: "item_tag", scale: true, color: true, icon: "prism_shot" },
+        { name: "Rocket Slam", id: "ability:rocket_slam", type: "item_tag", scale: true, icon: "rocket_slam" },
+        { name: "Super Speed", id: "ability:super_speed", type: "item_tag", scale: true, color: true, icon: "super_speed" },
+        { name: "Super Strength", id: "ability:super_strength", type: "tag_only", scale: true },
+        { name: "Telekinesis", id: "ability:telekinesis", type: "item_only", icon: "telekinesis" },
+        { name: "Thunderclap", id: "ability:thunderclap", type: "item_tag", scale: true, icon: "thunderclap" },
+        { name: "Undying", id: "ability:undying", type: "tag_only" },
+        { name: "Mask Off", id: "animation.suit.mask_off", type: "item_only", icon: "mask_off", rawId: "ability:mask_off" },
+        { name: "Hood Down", id: "animation.suit.hood_down", type: "item_only", icon: "hood_down", rawId: "ability:hood_down" },
+        { name: "Suit Off", id: "animation.suit.suit_off", type: "item_only", icon: "suit_off", rawId: "ability:suit_off" },
+        { name: "Nano Toggle", id: "ability:toggle_anim_suit", type: "item_only", icon: "toggle_anim_suit" }
+    ];
+
+    function init() {
+        const container = document.getElementById('abilitiesContainer');
+        abilityDb.forEach((ab, index) => {
+            const row = document.createElement('div');
+            row.className = 'ability-row';
+            row.innerHTML = `
+                <input type="checkbox" id="check_${index}">
+                <div class="ability-info">
+                    <div class="ability-name">${ab.name}</div>
+                </div>
+                <div class="ability-controls">
+                    ${ab.scale ? `<input type="number" id="num_${index}" class="small-input" placeholder="Lv" value="100">` : ''}
+                    ${ab.color ? `
+                        <select id="col_${index}" class="color-select">
+                            ${colors.map(c => `<option value="${c}">${c}</option>`).join('')}
+                        </select>
+                    ` : ''}
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    function toggleInjections() {
+        document.getElementById('injectionFields').style.display = document.getElementById('useInjections').checked ? 'grid' : 'none';
+    }
+
+    function generateRegistry() {
+        const suitId = document.getElementById('suitId').value;
+        const useInj = document.getElementById('useInjections').checked;
+        
+        let powerTags = [];
+        let abilities = [];
+
+        abilityDb.forEach((ab, index) => {
+            const isChecked = document.getElementById(`check_${index}`).checked;
+            if (!isChecked) return;
+
+            const lv = ab.scale ? document.getElementById(`num_${index}`).value : null;
+            const col = ab.color ? document.getElementById(`col_${index}`).value : null;
+
+            // Handle Item List
+            if (ab.type !== "tag_only") {
+                let itemId = ab.rawId || ab.id;
+                if (itemId.includes("<color>")) itemId = itemId.replace("<color>", col);
+                
+                abilities.push({
+                    name: ab.name,
+                    itemId: itemId,
+                    icon: `textures/items/abilities/${ab.icon || 'default'}`
+                });
+            }
+
+            // Handle Tags List
+            if (ab.type === "tag_only" || ab.type === "item_tag") {
+                let baseTag = ab.id;
+                if (lv) powerTags.push(`${baseTag}_${lv}`);
+                if (col) powerTags.push(`${baseTag}_${col}`);
+                if (!lv && !col) powerTags.push(baseTag);
+            }
+        });
+
+        // Custom tags
+        const custom = document.getElementById('customTags').value;
+        if (custom) custom.split(',').forEach(t => powerTags.push(t.trim()));
+
+        const registryObj = {
+            suitItem: document.getElementById('suitItem').value,
+            tag: document.getElementById('masterTag').value,
+            dnaTag: document.getElementById('dnaTag').value,
+        };
+
+        if (useInj) {
+            registryObj.injectionItem = document.getElementById('injItem').value;
+            registryObj.emptyItem = document.getElementById('emptyItem').value;
+        }
+
+        registryObj.powerTags = powerTags;
+        registryObj.effects = [{ id: "speed", level: 1 }]; // Placeholder
+        registryObj.abilities = abilities;
+
+        const finalCode = `"${suitId}": ${JSON.stringify(registryObj, null, 4)},`;
+        document.getElementById('output').textContent = finalCode;
+    }
+
+    function copyCode() {
+        const text = document.getElementById('output').textContent;
+        navigator.clipboard.writeText(text);
+        alert("Copied to clipboard!");
+    }
+
+    init();
+</script>
+
+</body>
+</html>
